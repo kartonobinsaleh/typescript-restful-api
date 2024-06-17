@@ -1,0 +1,11 @@
+{
+  "name": "typescript-restful-api",
+  "version": "1.0.0",
+  "description": "NodeJs Restful API with Typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kartono",
+  "license": "ISC"
+}
