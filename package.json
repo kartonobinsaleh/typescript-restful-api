@@ -9,6 +9,7 @@
   "author": "Kartono",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.15.0",
     "bcrypt": "^5.1.1",
     "express": "^4.19.2",
     "winston": "^3.13.0",
