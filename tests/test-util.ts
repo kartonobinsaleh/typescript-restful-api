@@ -1,19 +1,23 @@
 import { prismaClient } from "../src/applications/database";
+import bcrypt from "bcrypt";
 
 export class UserTest {
-  static async delete(username: string) {
-    const user = await prismaClient.user.findUnique({
+  static async delete() {
+    await prismaClient.user.deleteMany({
       where: {
-        username: username,
+        username: "test",
       },
     });
+  }
 
-    if (user) {
-      await prismaClient.user.delete({
-        where: {
-          username: username,
-        },
-      });
-    }
+  static async create() {
+    await prismaClient.user.create({
+      data: {
+        username: "test",
+        password: await bcrypt.hash("test", 10),
+        name: "test",
+        token: "test",
+      },
+    });
   }
 }
