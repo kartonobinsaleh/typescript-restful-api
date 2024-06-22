@@ -6,6 +6,6 @@ import { apiRouter } from "../routes/api";
 export const web = express();
 web.use(express.json());
 
-web.use(publicRouter);
-web.use(apiRouter);
+web.use("/api", publicRouter);
+web.use("/api", apiRouter);
 web.use(errorMiddleware);
