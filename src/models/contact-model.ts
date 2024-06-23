@@ -16,6 +16,14 @@ export type UpdateContactRequest = {
   phone?: string;
 };
 
+export type SearchContactRequest = {
+  name?: string;
+  phone?: string;
+  email?: string;
+  page: number;
+  size: number;
+};
+
 // Response
 export type ContactResponse = {
   id: number;
