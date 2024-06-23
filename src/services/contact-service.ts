@@ -31,4 +31,19 @@ export class ContactService {
 
     return toContactResponse(newContact);
   }
+
+  static async get(user: User, id: number): Promise<ContactResponse> {
+    const contact = await prismaClient.contact.findUnique({
+      where: {
+        id: id,
+        username: user.username,
+      },
+    });
+
+    if (!contact) {
+      throw new ResponseError(404, "Contact not found");
+    }
+
+    return toContactResponse(contact);
+  }
 }
