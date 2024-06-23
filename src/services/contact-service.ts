@@ -2,6 +2,7 @@ import { Contact, User } from "@prisma/client";
 import {
   ContactResponse,
   CreateContactRequest,
+  SearchContactRequest,
   UpdateContactRequest,
   toContactResponse,
 } from "../models/contact-model";
@@ -10,6 +11,7 @@ import { ContactValidation } from "../validations/contact-validation";
 import { prismaClient } from "../applications/database";
 import { logger } from "../applications/logging";
 import { ResponseError } from "../errors/response-error";
+import { Pageable } from "../models/page";
 
 export class ContactService {
   static async create(
@@ -88,5 +90,78 @@ export class ContactService {
     });
 
     return toContactResponse(result);
+  }
+
+  static async search(
+    user: User,
+    request: SearchContactRequest
+  ): Promise<Pageable<ContactResponse>> {
+    const searchReaquest = Validation.validate(
+      ContactValidation.SEARCH,
+      request
+    );
+
+    const skip = (searchReaquest.page - 1) * searchReaquest.size;
+
+    const filters = [];
+
+    // first_name or last_name
+    if (searchReaquest.name) {
+      filters.push({
+        OR: [
+          {
+            first_name: {
+              contains: searchReaquest.name,
+            },
+          },
+          {
+            last_name: {
+              contains: searchReaquest.name,
+            },
+          },
+        ],
+      });
+    }
+
+    if (searchReaquest.email) {
+      filters.push({
+        email: {
+          contains: searchReaquest.email,
+        },
+      });
+    }
+
+    if (searchReaquest.phone) {
+      filters.push({
+        phone: {
+          contains: searchReaquest.phone,
+        },
+      });
+    }
+
+    const contacts = await prismaClient.contact.findMany({
+      where: {
+        username: user.username,
+        AND: filters,
+      },
+      take: searchReaquest.size,
+      skip: skip,
+    });
+
+    const total = await prismaClient.contact.count({
+      where: {
+        username: user.username,
+        AND: filters,
+      },
+    });
+
+    return {
+      data: contacts.map((contact) => toContactResponse(contact)),
+      paging: {
+        current_page: searchReaquest.page,
+        total_page: Math.ceil(total / searchReaquest.page),
+        size: searchReaquest.size,
+      },
+    };
   }
 }
