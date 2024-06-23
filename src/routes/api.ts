@@ -15,3 +15,4 @@ apiRouter.delete("/users/current", UserController.logout);
 apiRouter.post("/contacts", ContactController.create);
 apiRouter.get("/contacts/:contactId(\\d+)", ContactController.get);
 apiRouter.put("/contacts/:contactId(\\d+)", ContactController.update);
+apiRouter.delete("/contacts/:contactId(\\d+)", ContactController.delete);
