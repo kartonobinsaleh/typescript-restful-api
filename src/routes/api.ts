@@ -24,3 +24,7 @@ apiRouter.post(
   "/contacts/:contactId(\\d+)/addresses",
   AddressController.create
 );
+apiRouter.get(
+  "/contacts/:contactId(\\d+)/addresses/:addressId(\\d+)",
+  AddressController.get
+);
