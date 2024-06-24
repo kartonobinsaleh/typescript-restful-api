@@ -159,3 +159,117 @@ describe("GET /api/contacts/:contactId/addresses/:addressId", () => {
     expect(response.body.errors).toBeDefined();
   });
 });
+
+describe("PUT /api/contacts/:contactId/addresess/:addressId", () => {
+  beforeEach(async () => {
+    await UserTest.create();
+    await ContactTest.create();
+    await AddressTest.create();
+  });
+
+  afterEach(async () => {
+    await AddressTest.deleteAll();
+    await ContactTest.deleteAll();
+    await UserTest.delete();
+  });
+
+  it("should be able update address", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .put(`/api/contacts/${contact.id}/addresses/${address.id}`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan update",
+        city: "City update",
+        province: "Province update",
+        country: "Country update",
+        postal_code: "333",
+      });
+
+    logger.debug(response.body);
+    expect(response.status).toBe(200);
+    expect(response.body.data.id).toBeDefined();
+    expect(response.body.data.street).toBe("Jalan update");
+    expect(response.body.data.city).toBe("City update");
+    expect(response.body.data.province).toBe("Province update");
+    expect(response.body.data.country).toBe("Country update");
+    expect(response.body.data.postal_code).toBe("333");
+  });
+
+  it("should reject update address if data is invalid", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .put(`/api/contacts/${contact.id}/addresses/${address.id}`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan update",
+        city: "City update",
+        province: "Province update",
+        country: "",
+        postal_code: "",
+      });
+
+    logger.debug(response.body);
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBeDefined();
+  });
+
+  it("should reject update address if contactId is not found", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .put(`/api/contacts/${contact.id + 1}/addresses/${address.id}`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan update",
+        city: "City update",
+        province: "Province update",
+        country: "Country update",
+        postal_code: "333",
+      });
+
+    logger.debug(response.body);
+    expect(response.status).toBe(404);
+    expect(response.body.errors).toBeDefined();
+  });
+
+  it("should reject update address if addressId is not found", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .put(`/api/contacts/${contact.id}/addresses/${address.id + 1}`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan update",
+        city: "City update",
+        province: "Province update",
+        country: "Country update",
+        postal_code: "333",
+      });
+
+    logger.debug(response.body);
+    expect(response.status).toBe(404);
+    expect(response.body.errors).toBeDefined();
+  });
+
+  it("should reject update address if token is invalid", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .put(`/api/contacts/${contact.id}/addresses/${address.id}`)
+      .set("Authorization", "salah")
+      .send({
+        street: "Jalan update",
+        city: "City update",
+        province: "Province update",
+        country: "Country update",
+        postal_code: "333",
+      });
+
+    logger.debug(response.body);
+    expect(response.status).toBe(401);
+    expect(response.body.errors).toBeDefined();
+  });
+});
