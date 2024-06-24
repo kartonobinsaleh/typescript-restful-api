@@ -10,6 +10,11 @@ export type CreateAddressRequest = {
   postal_code: string;
 };
 
+export type GetAddressRequest = {
+  id: number;
+  contact_id: number;
+};
+
 // Response
 export type AddressResponse = {
   id: number;
