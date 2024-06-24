@@ -92,3 +92,70 @@ describe("POST /api/contacts/:contactId/addresses", () => {
     expect(response.body.errors).toBeDefined();
   });
 });
+
+describe("GET /api/contacts/:contactId/addresses/:addressId", () => {
+  beforeEach(async () => {
+    await UserTest.create();
+    await ContactTest.create();
+    await AddressTest.create();
+  });
+
+  afterEach(async () => {
+    await AddressTest.deleteAll();
+    await ContactTest.deleteAll();
+    await UserTest.delete();
+  });
+
+  it("should be able get address", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .get(`/api/contacts/${contact.id}/addresses/${address.id}`)
+      .set("Authorization", "test");
+
+    logger.debug(response.body);
+    expect(response.status).toBe(200);
+    expect(response.body.data.id).toBeDefined();
+    expect(response.body.data.street).toBe("Jalan test");
+    expect(response.body.data.city).toBe("City test");
+    expect(response.body.data.province).toBe("Province test");
+    expect(response.body.data.country).toBe("Country test");
+    expect(response.body.data.postal_code).toBe("4444");
+  });
+
+  it("should reject get address if contactId is not found", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .get(`/api/contacts/${contact.id + 1}/addresses/${address.id}`)
+      .set("Authorization", "test");
+
+    logger.debug(response.body);
+    expect(response.status).toBe(404);
+    expect(response.body.errors).toBeDefined();
+  });
+
+  it("should reject get address if addressId is not found", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .get(`/api/contacts/${contact.id}/addresses/${address.id + 1}`)
+      .set("Authorization", "test");
+
+    logger.debug(response.body);
+    expect(response.status).toBe(404);
+    expect(response.body.errors).toBeDefined();
+  });
+
+  it("should reject get address if token is invalid", async () => {
+    const contact = await ContactTest.get();
+    const address = await AddressTest.get();
+    const response = await supertest(web)
+      .get(`/api/contacts/${contact.id}/addresses/${address.id}`)
+      .set("Authorization", "salah");
+
+    logger.debug(response.body);
+    expect(response.status).toBe(401);
+    expect(response.body.errors).toBeDefined();
+  });
+});
