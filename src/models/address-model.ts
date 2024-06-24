@@ -25,6 +25,8 @@ export type UpdateAddressRequest = {
   postal_code: string;
 };
 
+export type DeleteAddressRequest = GetAddressRequest;
+
 // Response
 export type AddressResponse = {
   id: number;
