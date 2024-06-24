@@ -1,8 +1,9 @@
-import { User } from "@prisma/client";
+import { Address, User } from "@prisma/client";
 import {
   AddressResponse,
   CreateAddressRequest,
   GetAddressRequest,
+  UpdateAddressRequest,
   toAddressResponse,
 } from "../models/address-model";
 import { Validation } from "../validations/validation";
@@ -33,6 +34,24 @@ export class AddressService {
     return toAddressResponse(newAddress);
   }
 
+  static async checkAddressMustAxists(
+    addressId: number,
+    contactId: number
+  ): Promise<Address> {
+    const address = await prismaClient.address.findUnique({
+      where: {
+        id: addressId,
+        contact_id: contactId,
+      },
+    });
+
+    if (!address) {
+      throw new ResponseError(404, "Address not found");
+    }
+
+    return address;
+  }
+
   static async get(
     user: User,
     request: GetAddressRequest
@@ -44,17 +63,41 @@ export class AddressService {
       request.contact_id
     );
 
-    const address = await prismaClient.address.findFirst({
-      where: {
-        id: getRequest.id,
-        contact_id: getRequest.contact_id,
-      },
-    });
-
-    if (!address) {
-      throw new ResponseError(404, "Address is not found");
-    }
+    const address = await this.checkAddressMustAxists(
+      getRequest.id,
+      getRequest.contact_id
+    );
 
     return toAddressResponse(address);
+  }
+
+  static async update(
+    user: User,
+    request: UpdateAddressRequest
+  ): Promise<AddressResponse> {
+    const updateRequest = Validation.validate(
+      AddressValidation.UPDATE,
+      request
+    );
+
+    await ContactService.checkContactMustAxists(
+      user.username,
+      request.contact_id
+    );
+
+    await this.checkAddressMustAxists(
+      updateRequest.id,
+      updateRequest.contact_id
+    );
+
+    const updateAddress = await prismaClient.address.update({
+      where: {
+        id: updateRequest.id,
+        contact_id: updateRequest.contact_id,
+      },
+      data: updateRequest,
+    });
+
+    return toAddressResponse(updateAddress);
   }
 }
