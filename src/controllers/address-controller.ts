@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import { UserRequest } from "../type/user-request";
 import {
   CreateAddressRequest,
+  DeleteAddressRequest,
   GetAddressRequest,
   UpdateAddressRequest,
 } from "../models/address-model";
@@ -47,6 +48,22 @@ export class AddressController {
       const response = await AddressService.update(req.user!, request);
       res.status(200).json({
         data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  static async delete(req: UserRequest, res: Response, next: NextFunction) {
+    try {
+      const request: DeleteAddressRequest = {
+        id: Number(req.params.addressId),
+        contact_id: Number(req.params.contactId),
+      };
+
+      const response = await AddressService.delete(req.user!, request);
+      res.status(200).json({
+        data: "OK",
       });
     } catch (e) {
       next(e);
