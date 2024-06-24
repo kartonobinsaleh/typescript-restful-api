@@ -32,3 +32,7 @@ apiRouter.put(
   "/contacts/:contactId(\\d+)/addresses/:addressId(\\d+)",
   AddressController.update
 );
+apiRouter.delete(
+  "/contacts/:contactId(\\d+)/addresses/:addressId(\\d+)",
+  AddressController.delete
+);
