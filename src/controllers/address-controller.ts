@@ -61,9 +61,22 @@ export class AddressController {
         contact_id: Number(req.params.contactId),
       };
 
-      const response = await AddressService.delete(req.user!, request);
+      await AddressService.delete(req.user!, request);
       res.status(200).json({
         data: "OK",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  static async list(req: UserRequest, res: Response, next: NextFunction) {
+    try {
+      const contactId = Number(req.params.contactId);
+
+      const response = await AddressService.list(req.user!, contactId);
+      res.status(200).json({
+        data: response,
       });
     } catch (e) {
       next(e);
